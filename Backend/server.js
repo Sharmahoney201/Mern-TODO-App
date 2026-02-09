@@ -1,23 +1,27 @@
-const express = require('express');
-const todoroutes = require('./routes/todo.routes');
-const dotenv = require('dotenv');
-const conn = require('./config/db.js');
-const cors = require('cors');
-const PORT = process.env.PORT || 5000;
+const express = require("express");
+const todoroutes = require("./routes/todo.routes");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
 const path = require("path");
-const ROOT_DIR = path.resolve();
-dotenv.config();
-const app = express();
-app.use(cors());
+const cors = require("cors");
 
+dotenv.config();
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// middleware
+app.use(cors());
 app.use(express.json());
 
+// database
+connectDB();
+
+// api routes
 app.use("/api/todos", todoroutes);
 
-app.get('/', (req, res) =>{
-    res.send("Hello World! Server running!");
-})
-
+// production frontend serving
+const ROOT_DIR = path.resolve();
 
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(ROOT_DIR, "Frontend", "dist")));
@@ -29,9 +33,7 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 
-
-
-app.listen(PORT,() => {
-    conn.connectDB();
-    console.log("Server running on http://localhost:${PORT}");
+// server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
 });
